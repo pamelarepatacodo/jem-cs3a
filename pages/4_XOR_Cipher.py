@@ -46,7 +46,5 @@ if st.button("Submit"):
 
     st.balloons()
     st.snow()
-    st.flower()
-    
     
 
