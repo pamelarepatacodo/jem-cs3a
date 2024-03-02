@@ -25,21 +25,8 @@ def encrypt_decrypt(text, shift_keys, ifdecrypt):
             result += char
         st.write(i, char, shift, result[i])
     return result
-    
-text = input()
-shift_keys = input().split()
-
-shift_keys = [int(key) for key in shift_keys]
-
-enc = encrypt_decrypt(text, shift_keys, False)
-st.write("----------")
-dec = encrypt_decrypt(enc, shift_keys, True)
-st.write("----------")
-st.write("Text:", text)
-st.write("Shift keys:", *shift_keys)
-st.write("Cipher:", enc)
-st.write("Decrypted text:", dec)
-
+   
+   
 text = st.text_input("Text")
 shift_keys_str = st.text_input("Shift keys (space-separated)")
 shift_keys = [int(key) for key in shift_keys_str.split()]
