@@ -3,15 +3,6 @@ import streamlit as st
 st.header("Caesar Cipher")
 
 def encrypt_decrypt(text, shift_keys, ifdecrypt):
-    """
-    Encrypts a text using Caesar Cipher with a list of shift keys.
-    Args:
-        text: The text to encrypt.
-        shift_keys: A list of integers representing the shift values for each character.
-        ifdecrypt: flag if decrypt or encrypt
-    Returns:
-        A string containing the encrypted text if encrypt and plain text if decrypt
-    """
     
     result = ""
     
@@ -35,8 +26,6 @@ def encrypt_decrypt(text, shift_keys, ifdecrypt):
         st.write(i, char, shift, result[i])
     return result
     
-
-# Example usage
 text = input()
 shift_keys = input().split()
 
