@@ -277,7 +277,7 @@ def main():
                     elif hash_algorithm == "SHA-1":
                         hashed_file = hash_file_sha1(file)
                     elif hash_algorithm == "BLAKE2b":
-                        hashed_file = hash_file_blake2b(file)
+                        hashed_file = has'h_file_blake2b(file)
                     st.text_area("Hashed File:", hashed_file)
                 except Exception as e:
                     st.error(f"Hashing failed: {e}")
