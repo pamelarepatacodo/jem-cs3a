@@ -1,5 +1,0 @@
- ```
- cryptography==3.4.8
- ```
-
- This specifies the version of the `cryptography` module to install. You can adjust the version as needed.
