@@ -6,7 +6,6 @@ from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.fernet import Fernet
-import os
 
 # Function to encrypt text using symmetric encryption
 def encrypt_text_symmetric(text, key):
@@ -23,13 +22,27 @@ def decrypt_text_symmetric(encrypted_text, key):
 # Function to encrypt text using asymmetric encryption
 def encrypt_text_asymmetric(text, public_key):
     public_key = serialization.load_pem_public_key(public_key, backend=default_backend())
-    encrypted_text = public_key.encrypt(text.encode(), padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()), algorithm=hashes.SHA256(), label=None))
+    encrypted_text = public_key.encrypt(
+        text.encode(),
+        padding.OAEP(
+            mgf=padding.MGF1(algorithm=hashes.SHA256()),
+            algorithm=hashes.SHA256(),
+            label=None
+        )
+    )
     return encrypted_text
 
 # Function to decrypt text using asymmetric encryption
 def decrypt_text_asymmetric(encrypted_text, private_key):
     private_key = serialization.load_pem_private_key(private_key, password=None, backend=default_backend())
-    decrypted_text = private_key.decrypt(encrypted_text, padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()), algorithm=hashes.SHA256(), label=None)).decode()
+    decrypted_text = private_key.decrypt(
+        encrypted_text,
+        padding.OAEP(
+            mgf=padding.MGF1(algorithm=hashes.SHA256()),
+            algorithm=hashes.SHA256(),
+            label=None
+        )
+    ).decode()
     return decrypted_text
 
 # Function to hash text using hashing function
