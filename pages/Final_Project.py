@@ -106,8 +106,11 @@ def main():
             
             if st.button("Encrypt"):
                 if key and text:
-                    encrypted_text = encrypt_text_fernet(text, key.encode('utf-8'))
-                    st.text_area("Encrypted Text:", encrypted_text.decode('utf-8'))
+                    try:
+                        encrypted_text = encrypt_text_fernet(text, key.encode('utf-8'))
+                        st.text_area("Encrypted Text:", encrypted_text.decode('utf-8'))
+                    except Exception as e:
+                        st.error(f"Encryption failed: {e}")
                 else:
                     st.warning("Please provide both key and text to encrypt.")
         
@@ -117,8 +120,11 @@ def main():
             
             if st.button("Encrypt"):
                 if public_key and text:
-                    encrypted_text = encrypt_text_rsa(text, public_key.encode('utf-8'))
-                    st.text_area("Encrypted Text:", base64.b64encode(encrypted_text).decode('utf-8'))
+                    try:
+                        encrypted_text = encrypt_text_rsa(text, public_key.encode('utf-8'))
+                        st.text_area("Encrypted Text:", base64.b64encode(encrypted_text).decode('utf-8'))
+                    except Exception as e:
+                        st.error(f"Encryption failed: {e}")
                 else:
                     st.warning("Please provide both public key and text to encrypt.")
     
@@ -131,8 +137,11 @@ def main():
             
             if st.button("Decrypt"):
                 if key and encrypted_text:
-                    decrypted_text = decrypt_text_fernet(encrypted_text.encode('utf-8'), key.encode('utf-8'))
-                    st.success("Decrypted Text: " + decrypted_text)
+                    try:
+                        decrypted_text = decrypt_text_fernet(encrypted_text.encode('utf-8'), key.encode('utf-8'))
+                        st.success("Decrypted Text: " + decrypted_text)
+                    except Exception as e:
+                        st.error(f"Decryption failed: {e}")
                 else:
                     st.warning("Please provide both key and encrypted text.")
         
@@ -142,8 +151,11 @@ def main():
             
             if st.button("Decrypt"):
                 if private_key and encrypted_text:
-                    decrypted_text = decrypt_text_rsa(base64.b64decode(encrypted_text), private_key.encode('utf-8'))
-                    st.success("Decrypted Text: " + decrypted_text)
+                    try:
+                        decrypted_text = decrypt_text_rsa(base64.b64decode(encrypted_text), private_key.encode('utf-8'))
+                        st.success("Decrypted Text: " + decrypted_text)
+                    except Exception as e:
+                        st.error(f"Decryption failed: {e}")
                 else:
                     st.warning("Please provide both private key and encrypted text.")
     
@@ -153,9 +165,12 @@ def main():
         
         if st.button("Hash"):
             if text:
-                if hash_algorithm == "SHA-256":
-                    hashed_text = hash_text_sha256(text)
-                st.text_area("Hashed Text:", hashed_text)
+                try:
+                    if hash_algorithm == "SHA-256":
+                        hashed_text = hash_text_sha256(text)
+                    st.text_area("Hashed Text:", hashed_text)
+                except Exception as e:
+                    st.error(f"Hashing failed: {e}")
             else:
                 st.warning("Please provide text to hash.")
     
@@ -165,9 +180,12 @@ def main():
         
         if st.button("Hash"):
             if file:
-                if hash_algorithm == "SHA-256":
-                    hashed_file = hash_file_sha256(file)
-                st.text_area("Hashed File:", hashed_file)
+                try:
+                    if hash_algorithm == "SHA-256":
+                        hashed_file = hash_file_sha256(file)
+                    st.text_area("Hashed File:", hashed_file)
+                except Exception as e:
+                    st.error(f"Hashing failed: {e}")
             else:
                 st.warning("Please upload a file to hash.")
 
