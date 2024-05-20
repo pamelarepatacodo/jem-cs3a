@@ -83,12 +83,17 @@ def decrypt_text_fernet(encrypted_text, key):
 
 # Function to encrypt text using AES (manual)
 def encrypt_text_aes(text, key):
-    cipher = AES.new(key, AES.MODE_CBC)
-    ct_bytes = cipher.encrypt(pad(text.encode()))
-    return base64.b64encode(cipher.iv + ct_bytes).decode('utf-8')
+    if len(key) not in [16, 24, 32]:
+        raise ValueError("Key must be 16, 24, or 32 bytes long.")
+    iv = get_random_bytes(16)
+    cipher = AES.new(key, AES.MODE_CBC, iv)
+    ct_bytes = cipher.encrypt(pad(text.encode('utf-8')))
+    return base64.b64encode(iv + ct_bytes).decode('utf-8')
 
 # Function to decrypt text using AES (manual)
 def decrypt_text_aes(encrypted_text, key):
+    if len(key) not in [16, 24, 32]:
+        raise ValueError("Key must be 16, 24, or 32 bytes long.")
     encrypted_data = base64.b64decode(encrypted_text)
     iv = encrypted_data[:16]
     ct = encrypted_data[16:]
@@ -175,11 +180,14 @@ def main():
             
             if st.button("Encrypt"):
                 if key and text:
-                    try:
-                        encrypted_text = encrypt_text_aes(text, key.encode('utf-8'))
-                        st.text_area("Encrypted Text:", encrypted_text)
-                    except Exception as e:
-                        st.error(f"Encryption failed: {e}")
+                    if len(key) in [16, 24, 32]:
+                        try:
+                            encrypted_text = encrypt_text_aes(text, key.encode('utf-8'))
+                            st.text_area("Encrypted Text:", encrypted_text)
+                        except Exception as e:
+                            st.error(f"Encryption failed: {e}")
+                    else:
+                        st.warning("Key must be 16, 24, or 32 bytes long.")
                 else:
                     st.warning("Please provide both key and text to encrypt.")
         
@@ -220,11 +228,14 @@ def main():
             
             if st.button("Decrypt"):
                 if key and encrypted_text:
-                    try:
-                        decrypted_text = decrypt_text_aes(encrypted_text, key.encode('utf-8'))
-                        st.success("Decrypted Text: " + decrypted_text)
-                    except Exception as e:
-                        st.error(f"Decryption failed: {e}")
+                    if len(key) in [16, 24, 32]:
+                        try:
+                            decrypted_text = decrypt_text_aes(encrypted_text, key.encode('utf-8'))
+                            st.success("Decrypted Text: " + decrypted_text)
+                        except Exception as e:
+                            st.error(f"Decryption failed: {e}")
+                    else:
+                        st.warning("Key must be 16, 24, or 32 bytes long.")
                 else:
                     st.warning("Please provide both key and encrypted text.")
         
