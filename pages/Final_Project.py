@@ -168,7 +168,7 @@ def main():
             if st.button("Encrypt"):
                 if key and text:
                     try:
-                        encrypted_text = encrypt_text_fernet(text, key.encode('utf-8'))
+                        encrypted_text = encrypt_text_fernet(text, key)
                         st.text_area("Encrypted Text:", encrypted_text.decode('utf-8'))
                     except Exception as e:
                         st.error(f"Encryption failed: {e}")
@@ -225,7 +225,7 @@ def main():
             if st.button("Decrypt"):
                 if key and encrypted_text:
                     try:
-                        decrypted_text = decrypt_text_fernet(encrypted_text.encode('utf-8'), key.encode('utf-8'))
+                        decrypted_text = decrypt_text_fernet(encrypted_text.encode('utf-8'), key)
                         st.success("Decrypted Text: " + decrypted_text)
                     except Exception as e:
                         st.error(f"Decryption failed: {e}")
