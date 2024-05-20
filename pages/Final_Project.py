@@ -277,12 +277,15 @@ def main():
             if st.button("Decrypt"):
                 if private_key and encrypted_text:
                     try:
-                        decrypted_text = decrypt_text_rsa(base64.b64decode(encrypted_text.encode()), private_key)
+                        private_key_bytes = private_key.encode('utf-8')
+                        encrypted_text_bytes = base64.b64decode(encrypted_text)
+                        decrypted_text = decrypt_text_rsa(encrypted_text_bytes, private_key_bytes)
                         st.success("Decrypted Text: " + decrypted_text)
                     except Exception as e:
                         st.error(f"Decryption failed: {e}")
                 else:
                     st.warning("Please provide both private key and encrypted text.")
+
 
     elif operation == "Hash Text":
         text = st.text_area("Enter Text to Hash:")
