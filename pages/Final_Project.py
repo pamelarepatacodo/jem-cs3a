@@ -153,23 +153,16 @@ def main():
     
     operation = st.sidebar.selectbox("Select Operation", ["Encrypt", "Decrypt", "Generate Keys", "Hash Text", "Hash File"])
     
-    if operation == "Generate Keys":
-        if st.button("Generate RSA Key Pair"):
-            private_key, public_key = generate_rsa_keys()
-            st.text_area("Private Key:", private_key.decode('utf-8'), height=200)
-            st.text_area("Public Key:", public_key.decode('utf-8'), height=200)
-        if st.button("Generate Fernet Key"):
-            key = generate_fernet_key()
-            st.text_area("Fernet Key:", key.decode('utf-8'), height=100)
-        if st.button("Generate AES Key"):
-            key = generate_aes_key()
-            st.text_area("AES Key (Base64):", base64.b64encode(key).decode('utf-8'), height=100)
-    
-    elif operation == "Encrypt":
+    if operation == "Encrypt":
         encryption_type = st.selectbox("Select Encryption Algorithm", ["Symmetric (Fernet)", "Symmetric (AES)", "Asymmetric (RSA)"])
         
         if encryption_type == "Symmetric (Fernet)":
-            key = st.text_area("Enter Fernet Key:")
+            if st.checkbox("Generate Fernet Key"):
+                key = generate_fernet_key().decode('utf-8')
+                st.text_area("Generated Fernet Key:", key)
+            else:
+                key = st.text_area("Enter Fernet Key:")
+            
             text = st.text_area("Enter Text to Encrypt:")
             
             if st.button("Encrypt"):
@@ -183,24 +176,33 @@ def main():
                     st.warning("Please provide both key and text to encrypt.")
         
         elif encryption_type == "Symmetric (AES)":
-            key = st.text_area("Enter AES Key (16, 24, or 32 bytes):")
+            if st.checkbox("Generate AES Key"):
+                key = base64.b64encode(generate_aes_key()).decode('utf-8')
+                st.text_area("Generated AES Key:", key)
+            else:
+                key = st.text_area("Enter AES Key (Base64, 16, 24, or 32 bytes):")
+            
             text = st.text_area("Enter Text to Encrypt:")
             
             if st.button("Encrypt"):
                 if key and text:
-                    if len(key) in [16, 24, 32]:
-                        try:
-                            encrypted_text = encrypt_text_aes(text, key.encode('utf-8'))
-                            st.text_area("Encrypted Text:", encrypted_text)
-                        except Exception as e:
-                            st.error(f"Encryption failed: {e}")
-                    else:
-                        st.warning("Key must be 16, 24, or 32 bytes long.")
+                    try:
+                        key_bytes = base64.b64decode(key)
+                        encrypted_text = encrypt_text_aes(text, key_bytes)
+                        st.text_area("Encrypted Text:", encrypted_text)
+                    except Exception as e:
+                        st.error(f"Encryption failed: {e}")
                 else:
                     st.warning("Please provide both key and text to encrypt.")
         
         elif encryption_type == "Asymmetric (RSA)":
-            public_key = st.text_area("Enter Public Key:")
+            if st.checkbox("Generate RSA Key Pair"):
+                private_key, public_key = generate_rsa_keys()
+                st.text_area("Generated Public Key:", public_key.decode('utf-8'))
+                st.text_area("Generated Private Key:", private_key.decode('utf-8'))
+            else:
+                public_key = st.text_area("Enter Public Key:")
+            
             text = st.text_area("Enter Text to Encrypt:")
             
             if st.button("Encrypt"):
@@ -231,19 +233,17 @@ def main():
                     st.warning("Please provide both key and encrypted text.")
         
         elif decryption_type == "Symmetric (AES)":
-            key = st.text_area("Enter AES Key (16, 24, or 32 bytes):")
+            key = st.text_area("Enter AES Key (Base64, 16, 24, or 32 bytes):")
             encrypted_text = st.text_area("Enter Encrypted Text:")
             
             if st.button("Decrypt"):
                 if key and encrypted_text:
-                    if len(key) in [16, 24, 32]:
-                        try:
-                            decrypted_text = decrypt_text_aes(encrypted_text, key.encode('utf-8'))
-                            st.success("Decrypted Text: " + decrypted_text)
-                        except Exception as e:
-                            st.error(f"Decryption failed: {e}")
-                    else:
-                        st.warning("Key must be 16, 24, or 32 bytes long.")
+                    try:
+                        key_bytes = base64.b64decode(key)
+                        decrypted_text = decrypt_text_aes(encrypted_text, key_bytes)
+                        st.success("Decrypted Text: " + decrypted_text)
+                    except Exception as e:
+                        st.error(f"Decryption failed: {e}")
                 else:
                     st.warning("Please provide both key and encrypted text.")
         
