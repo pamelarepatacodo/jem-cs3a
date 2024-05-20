@@ -210,7 +210,8 @@ def main():
     st.title("Applied Cryptography Application")
     
     operation = st.sidebar.selectbox("Select Operation", ["Encrypt", "Decrypt", "Generate Keys", "Hash Text", "Hash File"])
-    
+    action = st.sidebar.radio("Select Action", ["Text", "File"])
+
     if operation == "Encrypt":
         encryption_type = st.selectbox("Select Encryption Algorithm", ["Symmetric (Fernet)", "Symmetric (AES)", "Asymmetric (RSA)"])
         
@@ -221,25 +222,28 @@ def main():
             else:
                 key = st.text_area("Enter Fernet Key:")
             
-            text = st.text_area("Enter Text to Encrypt:")
-            file = st.file_uploader("Choose a file to encrypt", type="txt")
-            
-            if st.button("Encrypt"):
-                if key:
-                    if text:
+            if action == "Text":
+                text = st.text_area("Enter Text to Encrypt:")
+                if st.button("Encrypt"):
+                    if key:
                         try:
                             encrypted_text = encrypt_text_fernet(text, key.encode('utf-8'))
                             st.text_area("Encrypted Text:", encrypted_text.decode('utf-8'))
                         except Exception as e:
                             st.error(f"Encryption failed: {e}")
-                    if file:
+                    else:
+                        st.warning("Please provide the key to encrypt.")
+            elif action == "File":
+                file = st.file_uploader("Choose a file to encrypt", type="txt")
+                if st.button("Encrypt"):
+                    if key and file:
                         try:
                             encrypted_file = encrypt_file_fernet(file.read(), key.encode('utf-8'))
-                            st.text_area("Encrypted File (Base64):", base64.b64encode(encrypted_file).decode('utf-8'))
+                            st.download_button("Download Encrypted File", data=encrypted_file, file_name="encrypted_file.txt")
                         except Exception as e:
                             st.error(f"File encryption failed: {e}")
-                else:
-                    st.warning("Please provide the key to encrypt.")
+                    else:
+                        st.warning("Please provide the key and file to encrypt.")
         
         elif encryption_type == "Symmetric (AES)":
             if st.checkbox("Generate AES Key"):
@@ -248,23 +252,30 @@ def main():
             else:
                 key = st.text_area("Enter AES Key (Base64, 16, 24, or 32 bytes):")
             
-            text = st.text_area("Enter Text to Encrypt:")
-            file = st.file_uploader("Choose a file to encrypt", type="txt")
-            
-            if st.button("Encrypt"):
-                if key:
-                    try:
-                        key_bytes = base64.b64decode(key)
-                        if text:
+            if action == "Text":
+                text = st.text_area("Enter Text to Encrypt:")
+                if st.button("Encrypt"):
+                    if key:
+                        try:
+                            key_bytes = base64.b64decode(key)
                             encrypted_text = encrypt_text_aes(text, key_bytes)
                             st.text_area("Encrypted Text:", encrypted_text)
-                        if file:
+                        except Exception as e:
+                            st.error(f"Encryption failed: {e}")
+                    else:
+                        st.warning("Please provide the key to encrypt.")
+            elif action == "File":
+                file = st.file_uploader("Choose a file to encrypt", type="txt")
+                if st.button("Encrypt"):
+                    if key and file:
+                        try:
+                            key_bytes = base64.b64decode(key)
                             encrypted_file = encrypt_file_aes(file.read(), key_bytes)
-                            st.text_area("Encrypted File (Base64):", base64.b64encode(encrypted_file).decode('utf-8'))
-                    except Exception as e:
-                        st.error(f"Encryption failed: {e}")
-                else:
-                    st.warning("Please provide the key to encrypt.")
+                            st.download_button("Download Encrypted File", data=encrypted_file, file_name="encrypted_file.txt")
+                        except Exception as e:
+                            st.error(f"File encryption failed: {e}")
+                    else:
+                        st.warning("Please provide the key and file to encrypt.")
         
         elif encryption_type == "Asymmetric (RSA)":
             if st.checkbox("Generate RSA Key Pair"):
@@ -274,86 +285,125 @@ def main():
             else:
                 public_key = st.text_area("Enter Public Key:")
             
-            text = st.text_area("Enter Text to Encrypt:")
-            file = st.file_uploader("Choose a file to encrypt", type="txt")
-            
-            if st.button("Encrypt"):
-                if public_key:
-                    try:
-                        if text:
-                            encrypted_text = encrypt_text_rsa(text, public_key)
+            if action == "Text":
+                text = st.text_area("Enter Text to Encrypt:")
+                if st.button("Encrypt"):
+                    if public_key:
+                        try:
+                            encrypted_text = encrypt_text_rsa(text, public_key.encode('utf-8'))
                             st.text_area("Encrypted Text:", base64.b64encode(encrypted_text).decode('utf-8'))
-                        if file:
+                        except Exception as e:
+                            st.error(f"Encryption failed: {e}")
+                    else:
+                        st.warning("Please provide the public key to encrypt.")
+            elif action == "File":
+                file = st.file_uploader("Choose a file to encrypt", type="txt")
+                if st.button("Encrypt"):
+                    if public_key and file:
+                        try:
                             encrypted_file = encrypt_file_rsa(file.read(), public_key.encode('utf-8'))
-                            st.text_area("Encrypted File (Base64):", base64.b64encode(encrypted_file).decode('utf-8'))
-                    except Exception as e:
-                        st.error(f"Encryption failed: {e}")
-                else:
-                    st.warning("Please provide the public key to encrypt.")
+                            st.download_button("Download Encrypted File", data=base64.b64encode(encrypted_file), file_name="encrypted_file.txt")
+                        except Exception as e:
+                            st.error(f"File encryption failed: {e}")
+                    else:
+                        st.warning("Please provide the public key and file to encrypt.")
     
     elif operation == "Decrypt":
         decryption_type = st.selectbox("Select Decryption Algorithm", ["Symmetric (Fernet)", "Symmetric (AES)", "Asymmetric (RSA)"])
         
         if decryption_type == "Symmetric (Fernet)":
             key = st.text_area("Enter Fernet Key:")
-            encrypted_text = st.text_area("Enter Encrypted Text:")
-            file = st.file_uploader("Choose an encrypted file to decrypt", type="txt")
             
-            if st.button("Decrypt"):
-                if key:
-                    if encrypted_text:
+            if action == "Text":
+                encrypted_text = st.text_area("Enter Encrypted Text:")
+                if st.button("Decrypt"):
+                    if key:
                         try:
                             decrypted_text = decrypt_text_fernet(encrypted_text.encode('utf-8'), key.encode('utf-8'))
                             st.success("Decrypted Text: " + decrypted_text)
                         except Exception as e:
                             st.error(f"Decryption failed: {e}")
-                    if file:
+                    else:
+                        st.warning("Please provide the key to decrypt.")
+            elif action == "File":
+                file = st.file_uploader("Choose an encrypted file to decrypt", type="txt")
+                if st.button("Decrypt"):
+                    if key and file:
                         try:
                             decrypted_file = decrypt_file_fernet(file.read(), key.encode('utf-8'))
-                            st.success("Decrypted File Content: " + decrypted_file.decode('utf-8'))
+                            st.download_button("Download Decrypted File", data=decrypted_file, file_name="decrypted_file.txt")
                         except Exception as e:
                             st.error(f"File decryption failed: {e}")
-                else:
-                    st.warning("Please provide the key to decrypt.")
+                    else:
+                        st.warning("Please provide the key and file to decrypt.")
         
         elif decryption_type == "Symmetric (AES)":
             key = st.text_area("Enter AES Key (Base64, 16, 24, or 32 bytes):")
-            encrypted_text = st.text_area("Enter Encrypted Text:")
-            file = st.file_uploader("Choose an encrypted file to decrypt", type="txt")
             
-            if st.button("Decrypt"):
-                if key:
-                    try:
-                        key_bytes = base64.b64decode(key)
-                        if encrypted_text:
+            if action == "Text":
+                encrypted_text = st.text_area("Enter Encrypted Text:")
+                if st.button("Decrypt"):
+                    if key:
+                        try:
+                            key_bytes = base64.b64decode(key)
                             decrypted_text = decrypt_text_aes(encrypted_text, key_bytes)
                             st.success("Decrypted Text: " + decrypted_text)
-                        if file:
+                        except Exception as e:
+                            st.error(f"Decryption failed: {e}")
+                    else:
+                        st.warning("Please provide the key to decrypt.")
+            elif action == "File":
+                file = st.file_uploader("Choose an encrypted file to decrypt", type="txt")
+                if st.button("Decrypt"):
+                    if key and file:
+                        try:
+                            key_bytes = base64.b64decode(key)
                             decrypted_file = decrypt_file_aes(file.read(), key_bytes)
-                            st.success("Decrypted File Content: " + decrypted_file.decode('utf-8'))
-                    except Exception as e:
-                        st.error(f"Decryption failed: {e}")
-                else:
-                    st.warning("Please provide the key to decrypt.")
+                            st.download_button("Download Decrypted File", data=decrypted_file, file_name="decrypted_file.txt")
+                        except Exception as e:
+                            st.error(f"File decryption failed: {e}")
+                    else:
+                        st.warning("Please provide the key and file to decrypt.")
         
         elif decryption_type == "Asymmetric (RSA)":
             private_key = st.text_area("Enter Private Key:")
-            encrypted_text = st.text_area("Enter Encrypted Text:")
-            file = st.file_uploader("Choose an encrypted file to decrypt", type="txt")
             
-            if st.button("Decrypt"):
-                if private_key:
-                    try:
-                        if encrypted_text:
+            if action == "Text":
+                encrypted_text = st.text_area("Enter Encrypted Text:")
+                if st.button("Decrypt"):
+                    if private_key:
+                        try:
                             decrypted_text = decrypt_text_rsa(base64.b64decode(encrypted_text), private_key.encode('utf-8'))
                             st.success("Decrypted Text: " + decrypted_text)
-                        if file:
+                        except Exception as e:
+                            st.error(f"Decryption failed: {e}")
+                    else:
+                        st.warning("Please provide the private key to decrypt.")
+            elif action == "File":
+                file = st.file_uploader("Choose an encrypted file to decrypt", type="txt")
+                if st.button("Decrypt"):
+                    if private_key and file:
+                        try:
                             decrypted_file = decrypt_file_rsa(file.read(), private_key.encode('utf-8'))
-                            st.success("Decrypted File Content: " + decrypted_file.decode('utf-8'))
-                    except Exception as e:
-                        st.error(f"Decryption failed: {e}")
-                else:
-                    st.warning("Please provide the private key to decrypt.")
+                            st.download_button("Download Decrypted File", data=decrypted_file, file_name="decrypted_file.txt")
+                        except Exception as e:
+                            st.error(f"File decryption failed: {e}")
+                    else:
+                        st.warning("Please provide the private key and file to decrypt.")
+    
+    elif operation == "Generate Keys":
+        key_type = st.selectbox("Select Key Type", ["Fernet", "RSA"])
+        
+        if key_type == "Fernet":
+            if st.button("Generate Fernet Key"):
+                key = generate_fernet_key().decode('utf-8')
+                st.text_area("Generated Fernet Key:", key)
+        
+        elif key_type == "RSA":
+            if st.button("Generate RSA Key Pair"):
+                private_key, public_key = generate_rsa_keys()
+                st.text_area("Generated Public Key:", public_key.decode('utf-8'))
+                st.text_area("Generated Private Key:", private_key.decode('utf-8'))
     
     elif operation == "Hash Text":
         text = st.text_area("Enter Text to Hash:")
