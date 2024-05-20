@@ -190,6 +190,7 @@ def main():
                 st.text_area("Generated AES Key:", key)
             else:
                 key = st.text_area("Enter AES Key (16, 24, or 32 bytes):")
+            
             text = st.text_area("Enter Text to Encrypt:")
             
             if st.button("Encrypt"):
@@ -272,11 +273,11 @@ def main():
         elif decryption_type == "Asymmetric (RSA)":
             private_key = st.text_area("Enter Private Key:")
             encrypted_text = st.text_area("Enter Encrypted Text:")
-            
+
             if st.button("Decrypt"):
                 if private_key and encrypted_text:
                     try:
-                        decrypted_text = decrypt_text_rsa(base64.b64decode(encrypted_text), private_key)
+                        decrypted_text = decrypt_text_rsa(base64.b64decode(encrypted_text.encode()), private_key)
                         st.success("Decrypted Text: " + decrypted_text)
                     except Exception as e:
                         st.error(f"Decryption failed: {e}")
