@@ -8,6 +8,7 @@ from Crypto.Cipher import AES
 from Crypto.Random import get_random_bytes
 import hashlib
 import base64
+import secrets
 
 # AES helper functions
 def pad(data):
@@ -80,6 +81,10 @@ def decrypt_text_fernet(encrypted_text, key):
     fernet = Fernet(key)
     decrypted_text = fernet.decrypt(encrypted_text).decode()
     return decrypted_text
+
+# Function to generate a secure random AES key
+def generate_aes_key():
+    return secrets.token_bytes(16)  # 16 bytes long key
 
 # Function to encrypt text using AES (manual)
 def encrypt_text_aes(text, key):
@@ -156,6 +161,9 @@ def main():
         if st.button("Generate Fernet Key"):
             key = generate_fernet_key()
             st.text_area("Fernet Key:", key.decode('utf-8'), height=100)
+        if st.button("Generate AES Key"):
+            key = generate_aes_key()
+            st.text_area("AES Key (Base64):", base64.b64encode(key).decode('utf-8'), height=100)
     
     elif operation == "Encrypt":
         encryption_type = st.selectbox("Select Encryption Algorithm", ["Symmetric (Fernet)", "Symmetric (AES)", "Asymmetric (RSA)"])
