@@ -66,32 +66,6 @@ def decrypt_text_rsa(encrypted_text, private_key):
     ).decode()
     return decrypted_text
 
-# Function to encrypt file using RSA
-def encrypt_file_rsa(file_data, public_key):
-    public_key = serialization.load_pem_public_key(public_key, backend=default_backend())
-    encrypted_file = public_key.encrypt(
-        file_data,
-        padding.OAEP(
-            mgf=padding.MGF1(algorithm=hashes.SHA256()),
-            algorithm=hashes.SHA256(),
-            label=None
-        )
-    )
-    return encrypted_file
-
-# Function to decrypt file using RSA
-def decrypt_file_rsa(encrypted_data, private_key):
-    private_key = serialization.load_pem_private_key(private_key, password=None, backend=default_backend())
-    decrypted_file = private_key.decrypt(
-        encrypted_data,
-        padding.OAEP(
-            mgf=padding.MGF1(algorithm=hashes.SHA256()),
-            algorithm=hashes.SHA256(),
-            label=None
-        )
-    )
-    return decrypted_file
-
 # Function to generate Fernet key
 def generate_fernet_key():
     return Fernet.generate_key()
@@ -151,12 +125,13 @@ def encrypt_file_aes(file_data, key):
     iv = get_random_bytes(16)
     cipher = AES.new(key, AES.MODE_CBC, iv)
     ct_bytes = cipher.encrypt(pad(file_data))
-    return iv + ct_bytes
+    return base64.b64encode(iv + ct_bytes)
 
 # Function to decrypt file using AES (manual)
 def decrypt_file_aes(encrypted_data, key):
     if len(key) not in [16, 24, 32]:
         raise ValueError("Key must be 16, 24, or 32 bytes long.")
+    encrypted_data = base64.b64decode(encrypted_data)
     iv = encrypted_data[:16]
     ct = encrypted_data[16:]
     cipher = AES.new(key, AES.MODE_CBC, iv)
@@ -233,12 +208,11 @@ def main():
                     else:
                         st.warning("Please provide both key and text to encrypt.")
             elif action == "File":
-                file = st.file_uploader("Choose a file to encrypt")
+                file = st.file_uploader("Choose a file to encrypt", type=['*'])
                 if st.button("Encrypt"):
                     if key and file:
                         try:
-                            key_bytes = key.encode('utf-8')
-                            encrypted_file = encrypt_file_fernet(file.read(), key_bytes)
+                            encrypted_file = encrypt_file_fernet(file.read(), key.encode('utf-8'))
                             st.download_button("Download Encrypted File", data=encrypted_file, file_name="encrypted_file.bin")
                         except Exception as e:
                             st.error(f"File encryption failed: {e}")
@@ -265,7 +239,7 @@ def main():
                     else:
                         st.warning("Please provide both key and text to encrypt.")
             elif action == "File":
-                file = st.file_uploader("Choose a file to encrypt", type=['txt', 'pdf', 'png', 'jpg', 'jpeg'])
+                file = st.file_uploader("Choose a file to encrypt", type=['*'])
                 if st.button("Encrypt"):
                     if key and file:
                         try:
@@ -297,13 +271,12 @@ def main():
                     else:
                         st.warning("Please provide both public key and text to encrypt.")
             elif action == "File":
-                file = st.file_uploader("Choose a file to encrypt", type=['txt', 'pdf', 'png', 'jpg', 'jpeg'])
+                file = st.file_uploader("Choose a file to encrypt", type=['*'])
                 if st.button("Encrypt"):
                     if public_key and file:
                         try:
-                            public_key_bytes = public_key.encode('utf-8')
-                            encrypted_file = encrypt_file_rsa(file.read(), public_key_bytes)
-                            st.download_button("Download Encrypted File", data=encrypted_file, file_name="encrypted_file.bin")
+                            encrypted_file = encrypt_text_rsa(file.read().decode('utf-8'), public_key.encode('utf-8'))
+                            st.download_button("Download Encrypted File", data=base64.b64encode(encrypted_file), file_name="encrypted_file.bin")
                         except Exception as e:
                             st.error(f"File encryption failed: {e}")
                     else:
@@ -327,13 +300,12 @@ def main():
                     else:
                         st.warning("Please provide both key and encrypted text.")
             elif action == "File":
-                file = st.file_uploader("Choose an encrypted file to decrypt", type=['bin'])
+                file = st.file_uploader("Choose an encrypted file to decrypt", type=['*'])
                 if st.button("Decrypt"):
                     if key and file:
                         try:
-                            key_bytes = key.encode('utf-8')
-                            decrypted_file = decrypt_file_fernet(file.read(), key_bytes)
-                            st.download_button("Download Decrypted File", data=decrypted_file, file_name="decrypted_file.txt")
+                            decrypted_file = decrypt_file_fernet(file.read(), key.encode('utf-8'))
+                            st.download_button("Download Decrypted File", data=decrypted_file, file_name="decrypted_file")
                         except Exception as e:
                             st.error(f"File decryption failed: {e}")
                     else:
@@ -355,7 +327,7 @@ def main():
                     else:
                         st.warning("Please provide both key and encrypted text.")
             elif action == "File":
-                file = st.file_uploader("Choose an encrypted file to decrypt", type=['bin'])
+                file = st.file_uploader("Choose an encrypted file to decrypt", type=['*'])
                 if st.button("Decrypt"):
                     if key and file:
                         try:
@@ -382,12 +354,11 @@ def main():
                     else:
                         st.warning("Please provide both private key and encrypted text.")
             elif action == "File":
-                file = st.file_uploader("Choose an encrypted file to decrypt", type=['bin'])
+                file = st.file_uploader("Choose an encrypted file to decrypt", type=['*'])
                 if st.button("Decrypt"):
                     if private_key and file:
                         try:
-                            private_key_bytes = private_key.encode('utf-8')
-                            decrypted_file = decrypt_file_rsa(file.read(), private_key_bytes)
+                            decrypted_file = decrypt_text_rsa(file.read(), private_key.encode('utf-8'))
                             st.download_button("Download Decrypted File", data=decrypted_file, file_name="decrypted_file")
                         except Exception as e:
                             st.error(f"File decryption failed: {e}")
@@ -395,19 +366,20 @@ def main():
                         st.warning("Please provide the private key and encrypted file.")
     
     elif operation == "Generate Keys":
-        key_type = st.selectbox("Select Key Type", ["RSA", "Fernet"])
-        if st.button("Generate"):
-            if key_type == "RSA":
-                private_key, public_key = generate_rsa_keys()
-                st.text_area("Generated Public Key:", public_key.decode('utf-8'))
-                st.text_area("Generated Private Key:", private_key.decode('utf-8'))
-            elif key_type == "Fernet":
-                key = generate_fernet_key().decode('utf-8')
-                st.text_area("Generated Fernet Key:", key)
+        key_type = st.selectbox("Select Key Type", ["Fernet (AES)", "RSA"])
+        
+        if key_type == "Fernet (AES)":
+            key = generate_fernet_key().decode('utf-8')
+            st.text_area("Generated Fernet Key:", key)
+        elif key_type == "RSA":
+            private_key, public_key = generate_rsa_keys()
+            st.text_area("Generated Public Key:", public_key.decode('utf-8'))
+            st.text_area("Generated Private Key:", private_key.decode('utf-8'))
     
     elif operation == "Hash Text":
         text = st.text_area("Enter Text to Hash:")
         hash_algorithm = st.selectbox("Select Hash Algorithm", ["SHA-256", "MD5", "SHA-1", "BLAKE2b"])
+        
         if st.button("Hash"):
             if text:
                 try:
@@ -428,6 +400,7 @@ def main():
     elif operation == "Hash File":
         file = st.file_uploader("Choose a file")
         hash_algorithm = st.selectbox("Select Hash Algorithm", ["SHA-256", "MD5", "SHA-1", "BLAKE2b"])
+        
         if st.button("Hash"):
             if file:
                 try:
@@ -447,5 +420,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-
 
