@@ -183,19 +183,19 @@ def main():
     st.title("Applied Cryptography Application")
     
     operation = st.sidebar.selectbox("Select Operation", ["Encrypt", "Decrypt", "Generate Keys", "Hash Text", "Hash File"])
+    action = st.radio("Choose Action Type", ["Text", "File"])
     
     if operation == "Encrypt":
         encryption_type = st.selectbox("Select Encryption Algorithm", ["Symmetric (Fernet)", "Symmetric (AES)", "Asymmetric (RSA)"])
         
         if encryption_type == "Symmetric (Fernet)":
-            encrypt_type = st.radio("Encrypt Text or File", ("Text", "File"))
             if st.checkbox("Generate Fernet Key"):
                 key = generate_fernet_key().decode('utf-8')
                 st.text_area("Generated Fernet Key:", key)
             else:
                 key = st.text_area("Enter Fernet Key:")
             
-            if encrypt_type == "Text":
+            if action == "Text":
                 text = st.text_area("Enter Text to Encrypt:")
                 if st.button("Encrypt"):
                     if key and text:
@@ -207,7 +207,7 @@ def main():
                     else:
                         st.warning("Please provide both key and text to encrypt.")
             
-            elif encrypt_type == "File":
+            elif action == "File":
                 file = st.file_uploader("Choose a file to encrypt", type=None)
                 if st.button("Encrypt"):
                     if key and file:
@@ -228,7 +228,7 @@ def main():
             else:
                 key = st.text_area("Enter AES Key (Base64, 16, 24, or 32 bytes):")
             
-            if encrypt_type == "Text":
+            if action == "Text":
                 text = st.text_area("Enter Text to Encrypt:")
                 if st.button("Encrypt"):
                     if key and text:
@@ -241,7 +241,7 @@ def main():
                     else:
                         st.warning("Please provide both key and text to encrypt.")
             
-            elif encrypt_type == "File":
+            elif action == "File":
                 file = st.file_uploader("Choose a file to encrypt", type=None)
                 if st.button("Encrypt"):
                     if key and file:
@@ -264,7 +264,7 @@ def main():
             else:
                 public_key = st.text_area("Enter Public Key:")
             
-            if encrypt_type == "Text":
+            if action == "Text":
                 text = st.text_area("Enter Text to Encrypt:")
                 if st.button("Encrypt"):
                     if public_key and text:
@@ -277,7 +277,7 @@ def main():
                     else:
                         st.warning("Please provide both public key and text to encrypt.")
             
-            elif encrypt_type == "File":
+            elif action == "File":
                 file = st.file_uploader("Choose a file to encrypt", type=None)
                 if st.button("Encrypt"):
                     if public_key and file:
@@ -298,7 +298,7 @@ def main():
         if decryption_type == "Symmetric (Fernet)":
             key = st.text_area("Enter Fernet Key:")
             
-            if encrypt_type == "Text":
+            if action == "Text":
                 encrypted_text = st.text_area("Enter Encrypted Text:")
                 if st.button("Decrypt"):
                     if key and encrypted_text:
@@ -310,7 +310,7 @@ def main():
                     else:
                         st.warning("Please provide both key and encrypted text.")
             
-            elif encrypt_type == "File":
+            elif action == "File":
                 file = st.file_uploader("Choose a file to decrypt", type=None)
                 if st.button("Decrypt"):
                     if key and file:
@@ -327,7 +327,7 @@ def main():
         elif decryption_type == "Symmetric (AES)":
             key = st.text_area("Enter AES Key (Base64, 16, 24, or 32 bytes):")
             
-            if encrypt_type == "Text":
+            if action == "Text":
                 encrypted_text = st.text_area("Enter Encrypted Text:")
                 if st.button("Decrypt"):
                     if key and encrypted_text:
@@ -340,7 +340,7 @@ def main():
                     else:
                         st.warning("Please provide both key and encrypted text.")
             
-            elif encrypt_type == "File":
+            elif action == "File":
                 file = st.file_uploader("Choose a file to decrypt", type=None)
                 if st.button("Decrypt"):
                     if key and file:
@@ -358,7 +358,7 @@ def main():
         elif decryption_type == "Asymmetric (RSA)":
             private_key = st.text_area("Enter Private Key:")
             
-            if encrypt_type == "Text":
+            if action == "Text":
                 encrypted_text = st.text_area("Enter Encrypted Text:")
                 if st.button("Decrypt"):
                     if private_key and encrypted_text:
@@ -371,7 +371,7 @@ def main():
                     else:
                         st.warning("Please provide both private key and encrypted text.")
             
-            elif encrypt_type == "File":
+            elif action == "File":
                 file = st.file_uploader("Choose a file to decrypt", type=None)
                 if st.button("Decrypt"):
                     if private_key and file:
@@ -449,5 +449,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
- 
