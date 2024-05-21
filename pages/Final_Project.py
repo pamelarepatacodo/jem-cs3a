@@ -294,7 +294,7 @@ def main():
                 if st.button("Encrypt"):
                     if public_key and text:
                         try:
-                            encrypted_text = encrypt_text_rsa(text, public_key.encode('utf-8'))
+                            encrypted_text = encrypt_text_rsa(text, public_key)
                             st.text_area("Encrypted Text:", base64.b64encode(encrypted_text).decode('utf-8'))
                         except Exception as e:
                             st.error(f"Encryption failed: {e}")
