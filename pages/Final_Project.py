@@ -183,12 +183,12 @@ def main():
     st.title("Applied Cryptography Application")
     
     operation = st.sidebar.selectbox("Select Operation", ["Encrypt", "Decrypt", "Generate Keys", "Hash Text", "Hash File"])
-    action = st.radio("Choose Action Type", ["Text", "File"])
     
     if operation == "Encrypt":
         encryption_type = st.selectbox("Select Encryption Algorithm", ["Symmetric (Fernet)", "Symmetric (AES)", "Asymmetric (RSA)"])
         
         if encryption_type == "Symmetric (Fernet)":
+            action = st.radio("Encrypt Text or File", ("Text", "File"))
             if st.checkbox("Generate Fernet Key"):
                 key = generate_fernet_key().decode('utf-8')
                 st.text_area("Generated Fernet Key:", key)
