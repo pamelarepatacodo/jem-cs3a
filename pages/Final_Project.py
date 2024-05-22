@@ -88,7 +88,7 @@ def encrypt_file_rsa(file_data, public_key):
 
 # Function to decrypt file using RSA
 def decrypt_file_rsa(encrypted_file, private_key):
-    private_key = serialization.load_pem_private_key(private_key, password=None, backend=default_backend())
+    private_key = serialization.load_pem_private_key(private_key.encode('utf-8'), password=None, backend=default_backend())
     chunk_size = 256  # RSA key length (2048 bits = 256 bytes)
     decrypted_file = bytearray()
     for i in range(0, len(encrypted_file), chunk_size):
@@ -420,7 +420,7 @@ def main():
                 if st.button("Decrypt"):
                     if private_key and file:
                         try:
-                            private_key_bytes = private_key.decode('utf-8')
+                            private_key_bytes = private_key.encode('utf-8')
                             file_data = file.read()
                             decrypted_file = decrypt_file_rsa(file_data, private_key_bytes)
                             decrypted_file_name = f"decrypted_{file.name}"
