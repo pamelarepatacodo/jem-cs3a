@@ -450,10 +450,10 @@ def main():
                 st.text_area("Generated Private Key:", private_key.decode('utf-8'))
     
     elif operation == "Hash Data":
+        action = st.radio("Hash Text or File", ("Text", "File"))
         hash_algorithm = st.selectbox("Select Hash Algorithm", ["SHA-256", "MD5", "SHA-1", "BLAKE2b"])
         
         if action == "Text":
-            action = st.radio("Hash Text or File", ("Text", "File"))
             text = st.text_area("Enter Text to Hash:")
             if st.button("Hash Text"):
                 if text:
@@ -473,7 +473,6 @@ def main():
                     st.warning("Please provide text to hash.")
         
         elif action == "File":
-            action = st.radio("Hash Text or File", ("Text", "File"))
             file = st.file_uploader("Choose a file to hash")
             if st.button("Hash File"):
                 if file:
