@@ -300,7 +300,7 @@ def main():
             action = st.radio("Encrypt Text or File", ("Text", "File"))
             if st.checkbox("Generate RSA Key Pair"):
                 private_key, public_key = generate_rsa_keys()
-                st.text_area("Generated Public Key:", public_key.encode('utf-8'))
+                st.text_area("Generated Public Key:", public_key.decode('utf-8'))
                 st.text_area("Generated Private Key:", private_key.decode('utf-8'))
             else:
                 public_key = st.text_area("Enter Public Key:")
