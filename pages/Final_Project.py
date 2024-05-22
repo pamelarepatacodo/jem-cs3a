@@ -66,6 +66,43 @@ def decrypt_text_rsa(encrypted_text, private_key):
     )
     return decrypted_text
 
+# Function to encrypt file using RSA
+def encrypt_file_rsa(file_data, public_key):
+    public_key = serialization.load_pem_public_key(public_key.encode('utf-8'), backend=default_backend())
+    chunk_size = 190  # RSA key length (2048 bits = 256 bytes) - padding overhead (~66 bytes for SHA-256 OAEP)
+    encrypted_file = bytearray()
+    for i in range(0, len(file_data), chunk_size):
+        chunk = file_data[i:i+chunk_size]
+        encrypted_chunk = public_key.encrypt(
+            chunk,
+            padding.OAEP(
+                mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                algorithm=hashes.SHA256(),
+                label=None
+            )
+        )
+        encrypted_file.extend(encrypted_chunk)
+    return bytes(encrypted_file)
+
+# Function to decrypt file using RSA
+def decrypt_file_rsa(encrypted_file, private_key):
+    private_key = serialization.load_pem_private_key(private_key.encode('utf-8'), password=None, backend=default_backend())
+    chunk_size = 256  # RSA key length (2048 bits = 256 bytes)
+    decrypted_file = bytearray()
+    for i in range(0, len(encrypted_file), chunk_size):
+        chunk = encrypted_file[i:i+chunk_size]
+        decrypted_chunk = private_key.decrypt(
+            chunk,
+            padding.OAEP(
+                mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                algorithm=hashes.SHA256(),
+                label=None
+            )
+        )
+        decrypted_file.extend(decrypted_chunk)
+    return bytes(decrypted_file)
+
+
 # Function to generate Fernet key
 def generate_fernet_key():
     return Fernet.generate_key()
@@ -286,9 +323,9 @@ def main():
                         try:
                             public_key_bytes = public_key.encode('utf-8')
                             file_data = file.read()
-                            encrypted_file = encrypt_text_rsa(file_data, public_key_bytes)
+                            encrypted_file = encrypt_file_rsa(file_data, public_key_bytes)
                             encrypted_file_name = f"encrypted_{file.name}"
-                            st.download_button("Download Encrypted File", data=base64.b64encode(encrypted_file), file_name=encrypted_file_name)
+                            st.download_button("Download Encrypted File", data=encrypted_file, file_name=encrypted_file_name)
                         except Exception as e:
                             st.error(f"File encryption failed: {e}")
                     else:
@@ -360,7 +397,7 @@ def main():
                         st.warning("Please provide both key and file to decrypt.")
         
         elif decryption_type == "Asymmetric (RSA)":
-            action = st.radio("Encrypt Text or File", ("Text", "File"))
+            action = st.radio("Decrypt Text or File", ("Text", "File"))
             private_key = st.text_area("Enter Private Key:")
             
             if action == "Text":
@@ -383,7 +420,7 @@ def main():
                         try:
                             private_key_bytes = private_key.encode('utf-8')
                             file_data = file.read()
-                            decrypted_file = decrypt_text_rsa(base64.b64decode(file_data), private_key_bytes)
+                            decrypted_file = decrypt_file_rsa(file_data, private_key_bytes)
                             decrypted_file_name = f"decrypted_{file.name}"
                             st.download_button("Download Decrypted File", data=decrypted_file, file_name=decrypted_file_name)
                         except Exception as e:
