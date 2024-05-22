@@ -420,7 +420,7 @@ def main():
                 if st.button("Decrypt"):
                     if private_key and file:
                         try:
-                            private_key_bytes = private_key.encode('utf-8')
+                            private_key_bytes = private_key.decode('utf-8')
                             file_data = file.read()
                             decrypted_file = decrypt_file_rsa(file_data, private_key_bytes)
                             decrypted_file_name = f"decrypted_{file.name}"
