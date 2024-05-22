@@ -222,6 +222,7 @@ def main():
                         st.warning("Please provide both key and file to encrypt.")
         
         elif encryption_type == "Symmetric (AES)":
+            action = st.radio("Encrypt Text or File", ("Text", "File"))
             if st.checkbox("Generate AES Key"):
                 key = base64.b64encode(generate_aes_key()).decode('utf-8')
                 st.text_area("Generated AES Key:", key)
@@ -257,6 +258,7 @@ def main():
                         st.warning("Please provide both key and file to encrypt.")
         
         elif encryption_type == "Asymmetric (RSA)":
+            action = st.radio("Encrypt Text or File", ("Text", "File"))
             if st.checkbox("Generate RSA Key Pair"):
                 private_key, public_key = generate_rsa_keys()
                 st.text_area("Generated Public Key:", public_key.decode('utf-8'))
@@ -326,6 +328,7 @@ def main():
                         st.warning("Please provide both key and file to decrypt.")
         
         elif decryption_type == "Symmetric (AES)":
+            action = st.radio("Encrypt Text or File", ("Text", "File"))
             key = st.text_area("Enter AES Key (Base64, 16, 24, or 32 bytes):")
             
             if action == "Text":
@@ -357,6 +360,7 @@ def main():
                         st.warning("Please provide both key and file to decrypt.")
         
         elif decryption_type == "Asymmetric (RSA)":
+            action = st.radio("Encrypt Text or File", ("Text", "File"))
             private_key = st.text_area("Enter Private Key:")
             
             if action == "Text":
