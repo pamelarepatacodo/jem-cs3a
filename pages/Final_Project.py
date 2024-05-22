@@ -84,6 +84,7 @@ def encrypt_file_rsa(file_data, public_key):
         encrypted_file.extend(encrypted_chunk)
     return bytes(encrypted_file)
 
+
 # Function to decrypt file using RSA
 def decrypt_file_rsa(encrypted_file, private_key):
     private_key = serialization.load_pem_private_key(private_key.encode('utf-8'), password=None, backend=default_backend())
@@ -322,7 +323,7 @@ def main():
                     if public_key and file:
                         try:
                             public_key_bytes = public_key.encode('utf-8')
-                            file_data = file.read()
+                            file_data = file.read()   # Read file data as bytes
                             encrypted_file = encrypt_file_rsa(file_data, public_key_bytes)
                             encrypted_file_name = f"encrypted_{file.name}"
                             st.download_button("Download Encrypted File", data=encrypted_file, file_name=encrypted_file_name)
