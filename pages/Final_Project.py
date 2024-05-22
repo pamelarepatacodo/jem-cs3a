@@ -221,7 +221,7 @@ def hash_file_blake2b(file):
 def main():
     st.title("Applied Cryptography Application")
     
-    operation = st.sidebar.selectbox("Select Operation", ["Encrypt", "Decrypt", "Generate Keys", "Hash Text", "Hash File"])
+    operation = st.sidebar.selectbox("Select Operation", ["Encrypt", "Decrypt", "Generate Keys", "Hash Data"])
     
     if operation == "Encrypt":
         encryption_type = st.selectbox("Select Encryption Algorithm", ["Symmetric (Fernet)", "Symmetric (AES)", "Asymmetric (RSA)"])
@@ -449,47 +449,48 @@ def main():
                 st.text_area("Generated Public Key:", public_key.decode('utf-8'))
                 st.text_area("Generated Private Key:", private_key.decode('utf-8'))
     
-    elif operation == "Hash Text":
-        text = st.text_area("Enter Text to Hash:")
+    elif operation == "Hash Data":
         hash_algorithm = st.selectbox("Select Hash Algorithm", ["SHA-256", "MD5", "SHA-1", "BLAKE2b"])
         
-        if st.button("Hash"):
-            if text:
-                try:
-                    if hash_algorithm == "SHA-256":
-                        hashed_text = hash_text_sha256(text)
-                    elif hash_algorithm == "MD5":
-                        hashed_text = hash_text_md5(text)
-                    elif hash_algorithm == "SHA-1":
-                        hashed_text = hash_text_sha1(text)
-                    elif hash_algorithm == "BLAKE2b":
-                        hashed_text = hash_text_blake2b(text)
-                    st.text_area("Hashed Text:", hashed_text)
-                except Exception as e:
-                    st.error(f"Hashing failed: {e}")
-            else:
-                st.warning("Please provide text to hash.")
-    
-    elif operation == "Hash File":
-        file = st.file_uploader("Choose a file")
-        hash_algorithm = st.selectbox("Select Hash Algorithm", ["SHA-256", "MD5", "SHA-1", "BLAKE2b"])
+        if action == "Text":
+            action = st.radio("Hash Text or File", ("Text", "File"))
+            text = st.text_area("Enter Text to Hash:")
+            if st.button("Hash Text"):
+                if text:
+                    try:
+                        if hash_algorithm == "SHA-256":
+                            hashed_text = hash_text_sha256(text)
+                        elif hash_algorithm == "MD5":
+                            hashed_text = hash_text_md5(text)
+                        elif hash_algorithm == "SHA-1":
+                            hashed_text = hash_text_sha1(text)
+                        elif hash_algorithm == "BLAKE2b":
+                            hashed_text = hash_text_blake2b(text)
+                        st.text_area("Hashed Text:", hashed_text)
+                    except Exception as e:
+                        st.error(f"Hashing failed: {e}")
+                else:
+                    st.warning("Please provide text to hash.")
         
-        if st.button("Hash"):
-            if file:
-                try:
-                    if hash_algorithm == "SHA-256":
-                        hashed_file = hash_file_sha256(file)
-                    elif hash_algorithm == "MD5":
-                        hashed_file = hash_file_md5(file)
-                    elif hash_algorithm == "SHA-1":
-                        hashed_file = hash_file_sha1(file)
-                    elif hash_algorithm == "BLAKE2b":
-                        hashed_file = hash_file_blake2b(file)
-                    st.text_area("Hashed File:", hashed_file)
-                except Exception as e:
-                    st.error(f"Hashing failed: {e}")
-            else:
-                st.warning("Please upload a file to hash.")
+        elif action == "File":
+            action = st.radio("Hash Text or File", ("Text", "File"))
+            file = st.file_uploader("Choose a file to hash")
+            if st.button("Hash File"):
+                if file:
+                    try:
+                        if hash_algorithm == "SHA-256":
+                            hashed_file = hash_file_sha256(file)
+                        elif hash_algorithm == "MD5":
+                            hashed_file = hash_file_md5(file)
+                        elif hash_algorithm == "SHA-1":
+                            hashed_file = hash_file_sha1(file)
+                        elif hash_algorithm == "BLAKE2b":
+                            hashed_file = hash_file_blake2b(file)
+                        st.text_area("Hashed File:", hashed_file)
+                    except Exception as e:
+                        st.error(f"Hashing failed: {e}")
+                else:
+                    st.warning("Please upload a file to hash.")
 
 if __name__ == "__main__":
     main()
