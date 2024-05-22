@@ -68,8 +68,9 @@ def decrypt_text_rsa(encrypted_text, private_key):
 
 # Function to encrypt file using RSA
 def encrypt_file_rsa(file_data, public_key):
-    public_key = serialization.load_pem_public_key(public_key.encode('utf-8'), backend=default_backend())
-    chunk_size = 190  # RSA key length (2048 bits = 256 bytes) - padding overhead (~66 bytes for SHA-256 OAEP)
+    # Load the public key
+    public_key = serialization.load_pem_public_key(public_key, backend=default_backend())
+    chunk_size = 190  # Adjusted for padding
     encrypted_file = bytearray()
     for i in range(0, len(file_data), chunk_size):
         chunk = file_data[i:i+chunk_size]
@@ -299,7 +300,7 @@ def main():
             action = st.radio("Encrypt Text or File", ("Text", "File"))
             if st.checkbox("Generate RSA Key Pair"):
                 private_key, public_key = generate_rsa_keys()
-                st.text_area("Generated Public Key:", public_key.decode('utf-8'))
+                st.text_area("Generated Public Key:", public_key.encode('utf-8'))
                 st.text_area("Generated Private Key:", private_key.decode('utf-8'))
             else:
                 public_key = st.text_area("Enter Public Key:")
