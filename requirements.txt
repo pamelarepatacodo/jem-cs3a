@@ -7,3 +7,4 @@ cryptography
 pycryptodome
 seaborn
 sklearn
+pylance
